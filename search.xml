@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>python环境离线安装</title>
+      <link href="/2024/01/10/Python%20%E7%8E%AF%E5%A2%83%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85/"/>
+      <url>/2024/01/10/Python%20%E7%8E%AF%E5%A2%83%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85/</url>
+      
+        <content type="html"><![CDATA[<h1 id="pip-通过-requirements-文件，批量下载python包，批量离线安装python包"><a href="#pip-通过-requirements-文件，批量下载python包，批量离线安装python包" class="headerlink" title="pip 通过 requirements 文件，批量下载python包，批量离线安装python包"></a>pip 通过 requirements 文件，批量下载python包，批量离线安装python包</h1><h4 id="1、首先，在开发项目环境中分析出所有依赖的库"><a href="#1、首先，在开发项目环境中分析出所有依赖的库" class="headerlink" title="1、首先，在开发项目环境中分析出所有依赖的库"></a>1、首先，在开发项目环境中分析出所有依赖的库</h4><pre><code class="shell">pip freeze &gt; requirements.txt # 该方法仅可以使用在虚拟环境中，会将python 解释器下的所有包都导出pipreqs ./ --encoding=utf-8 --force # 表示覆盖该原有requirements.txt</code></pre><h4 id="2-在有网络的目标环境中，将所有包下载到DIR这个目录中"><a href="#2-在有网络的目标环境中，将所有包下载到DIR这个目录中" class="headerlink" title="2. 在有网络的目标环境中，将所有包下载到DIR这个目录中"></a>2. 在有网络的目标环境中，将所有包下载到DIR这个目录中</h4><p>切记，不要在 windows 下载包，然后放到 Linux 上进行安装，这样基本装不上</p><pre><code class="shell">pip download -d DIR -r requirements.txtpip wheel -w DIR -r requirements.txt</code></pre><ul><li>这两条命令的区别在于wheel 方式下载会将下载的包放入wheel 缓存，但缺点是wheel 不可以下载源码包</li><li>download 命令会查看wheel缓存，然后再去PyPI下载库，但download命令下载的包不会进入wheel缓存，download 的优点是可以下载源码包</li><li>需要注意，使用wheel 方式安装可能会报错，因为有些包是源码包，不能被打包成wheel 格式</li><li>download 方法下载的包，不会对依赖性进行检查，这意味着，如果下载 Flask-PyMongo 这个包，只会下载该包，而不会下载 pymongo，经试验发现，download 适合补充wheel不可下载的包，两者搭配使用，才能将requirements文件的库完整的下载</li></ul><h4 id="3-将文件打包后放到离线服务器上，并进行解压缩"><a href="#3-将文件打包后放到离线服务器上，并进行解压缩" class="headerlink" title="3. 将文件打包后放到离线服务器上，并进行解压缩"></a>3. 将文件打包后放到离线服务器上，并进行解压缩</h4><pre><code>pip install --no-index --find-links=DIR -r requirements.txt</code></pre><p>命令说明</p><ul><li>freeze 将依赖关系分析出来并 使用管道符导入到该文件中</li><li>download 分析 requirements 文件，将所有包进行下载，通过 d 选项导入 DIR 文件夹</li><li>wheel 分析requirements 文件，并将所有包及其依赖包下载为 wheel 格式，通过 w 选项导入 DIR 文件夹中</li><li>–find-links 指定离线安装的文件夹DIR，也就是你下载好的包</li><li>注意: –no-index 必须搭配 –find-links 使用</li></ul><h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><ol><li>安装时报错，不能找到相应的包，打开文件夹后却发现有这个库<ol><li>原因可能是该库是3.10 版本，而服务器是3.9 版本，导致安装不上</li><li>使用以下命令选择合适的版本，注意 <code>--no-deps</code> 不可缺少，</li></ol><pre><code>pip download  --no-deps--platform linux_x86_64--python-version 36--implementation cp  --abi cp36m     -r requirements.txt -d pk</code></pre></li></ol><pre><code></code></pre>]]></content>
+      
+      
+      <categories>
+          
+          <category> python </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> python </tag>
+            
+            <tag> linux </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Docker 本地部署Hadoop、Spark、Zookeeper、Hive集群</title>
       <link href="/2024/01/08/Docker%20%E6%9C%AC%E5%9C%B0%E9%83%A8%E7%BD%B2Hadoop%EF%BC%8CSpark%EF%BC%8CZookeeper%EF%BC%8CHive%E9%9B%86%E7%BE%A4/"/>
       <url>/2024/01/08/Docker%20%E6%9C%AC%E5%9C%B0%E9%83%A8%E7%BD%B2Hadoop%EF%BC%8CSpark%EF%BC%8CZookeeper%EF%BC%8CHive%E9%9B%86%E7%BE%A4/</url>
