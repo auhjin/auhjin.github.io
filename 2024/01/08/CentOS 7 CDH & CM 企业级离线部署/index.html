@@ -1,0 +1,846 @@
+<!DOCTYPE html><html lang="zh-TW" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Centos7 CDH&amp;CM 企业内网离线部署 | 飞驰的细狗</title><meta name="author" content="auhjin_ai8"><meta name="copyright" content="auhjin_ai8"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="一、CentOS 7 CDH &amp; CM 企业级离线部署在文中将有以下提示符对重点进行标注说明，请注意文中提示。 ️ - 文中出现此标记，代表重要提示，指需要格外注意的地方  -文中出现此标记，代表可选配置，建议配置，但不必要  ✅ - 文中出现此标记，代表检查项目，需要检查对应的配置文件❗️    - 文中出现此标记，代表该操作不可随意修改，如更改此步操作，请预先测试 Cloudera’s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Centos7 CDH&amp;CM 企业内网离线部署">
+<meta property="og:url" content="https://auhjin.github.io/2024/01/08/CentOS%207%20CDH%20&%20CM%20%E4%BC%81%E4%B8%9A%E7%BA%A7%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2/index.html">
+<meta property="og:site_name" content="飞驰的细狗">
+<meta property="og:description" content="一、CentOS 7 CDH &amp; CM 企业级离线部署在文中将有以下提示符对重点进行标注说明，请注意文中提示。 ️ - 文中出现此标记，代表重要提示，指需要格外注意的地方  -文中出现此标记，代表可选配置，建议配置，但不必要  ✅ - 文中出现此标记，代表检查项目，需要检查对应的配置文件❗️    - 文中出现此标记，代表该操作不可随意修改，如更改此步操作，请预先测试 Cloudera’s">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://auhjin.github.io/img/data.jpg">
+<meta property="article:published_time" content="2024-01-08T08:30:00.000Z">
+<meta property="article:modified_time" content="2024-01-18T01:48:35.096Z">
+<meta property="article:author" content="auhjin_ai8">
+<meta property="article:tag" content="bigdata">
+<meta property="article:tag" content="linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://auhjin.github.io/img/data.jpg"><link rel="shortcut icon" href="/img/logo.png"><link rel="canonical" href="https://auhjin.github.io/2024/01/08/CentOS%207%20CDH%20&amp;%20CM%20%E4%BC%81%E4%B8%9A%E7%BA%A7%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.12.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.32/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?830c22da3f3d148d0977a09fcbcd2610";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><link rel="stylesheet" href="/%E9%A3%9E%E9%A9%B0%E7%9A%84%E7%BB%86%E7%8B%97" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查詢的內容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: undefined,
+  copy: {
+    success: '複製成功',
+    error: '複製錯誤',
+    noSupport: '瀏覽器不支援'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '剛剛',
+    min: '分鐘前',
+    hour: '小時前',
+    day: '天前',
+    month: '個月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切換為繁體中文","cht_to_chs":"你已切換為簡體中文","day_to_night":"你已切換為深色模式","night_to_day":"你已切換為淺色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.0/dist/infinitegrid.min.js',
+    buttonText: '載入更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Centos7 CDH&CM 企业内网离线部署',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: true,
+  isToc: true,
+  postUpdate: '2024-01-18 09:48:35'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">載入中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+  window.addEventListener('load',() => { preloader.endLoading() })
+
+  if (true) {
+    document.addEventListener('pjax:send', () => { preloader.initLoading() })
+    document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+  }
+})()</script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/yuanyuan.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">6</div></a><a href="/tags/"><div class="headline">標籤</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分類</div><div class="length-num">4</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/weekly/"><i class="fa-fw fas fa-newspaper"></i><span> 周报</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/album/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comment/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/data.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="飞驰的细狗"><span class="site-name">飞驰的细狗</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜尋</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/weekly/"><i class="fa-fw fas fa-newspaper"></i><span> 周报</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/album/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comment/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Centos7 CDH&amp;CM 企业内网离线部署</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">發表於</span><time class="post-meta-date-created" datetime="2024-01-08T08:30:00.000Z" title="發表於 2024-01-08 16:30:00">2024-01-08</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新於</span><time class="post-meta-date-updated" datetime="2024-01-18T01:48:35.096Z" title="更新於 2024-01-18 09:48:35">2024-01-18</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/bigdata/">bigdata</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字數總計:</span><span class="word-count">3.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">閱讀時長:</span><span>14分鐘</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Centos7 CDH&amp;CM 企业内网离线部署"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">閱讀量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="一、CentOS-7-CDH-CM-企业级离线部署"><a href="#一、CentOS-7-CDH-CM-企业级离线部署" class="headerlink" title="一、CentOS 7 CDH &amp; CM 企业级离线部署"></a>一、CentOS 7 CDH &amp; CM 企业级离线部署</h1><p>在文中将有以下提示符对重点进行标注说明，请注意文中提示。</p>
+<p>️ - 文中出现此标记，代表重要提示，指需要格外注意的地方</p>
+<ul>
+<li>-文中出现此标记，代表可选配置，建议配置，但不必要</li>
+</ul>
+<p>✅ - 文中出现此标记，代表检查项目，需要检查对应的配置文件<br>❗️    - 文中出现此标记，代表该操作不可随意修改，如更改此步操作，请预先测试</p>
+<h2 id="Cloudera’s-Distribution-Including-Apache-Hadoop"><a href="#Cloudera’s-Distribution-Including-Apache-Hadoop" class="headerlink" title="Cloudera’s Distribution Including Apache Hadoop"></a>Cloudera’s Distribution Including Apache Hadoop</h2><p>CDH（Cloudera’s Distribution Including Apache Hadoop）是Apache Hadoop和相关项目的最完整，经过测试和最流行的发行版。CDH提供Hadoop的核心要素–可扩展的存储和分布式计算–以及基于Web的用户界面和重要的企业功能。CDH是Apache许可的开源软件，并且是唯一提供统一批处理，交互式SQL和交互式搜索以及基于角色的访问控制的Hadoop解决方案。 一句话概括CDH就是集成多种技术组件的一个框架。</p>
+<p> CDH提供<br>    - 灵活性-存储任何类型的数据并使用各种不同的计算框架进行处理，包括批处理，交互式SQL，自由文本搜索，机器学习和统计计算。<br>    - 集成-在可与广泛的硬件和软件解决方案一起使用的完整Hadoop平台上快速启动并运行。<br>    - 安全性-处理和控制敏感数据。<br>    - 可扩展性-启用广泛的应用程序并进行扩展，并扩展它们以满足您的要求。<br>    - 高可用性-自信地执行关键任务业务任务。<br>    - 兼容性-利用您现有的IT基础架构和投资。</p>
+<p>基于 Web 的用户界面，支持大多数 Hadoop 组件，包括 HDFS、MapReduce、Hive、Pig、Hbase、Zookeeper、Sqoop，简化了大数据平台的安装和使用难度。<br>除此 Apache Hadoop 发行版本之外，还有如下发行版：</p>
+<ul>
+<li>Cloudera’s Distribution Including Apache Hadoop（CDH）「本文使用」</li>
+<li>Hortonworks Data Platform (HDP)</li>
+<li>MapR</li>
+<li>EMR</li>
+</ul>
+<h5 id="Hadoop生态构成"><a href="#Hadoop生态构成" class="headerlink" title="Hadoop生态构成"></a>Hadoop生态构成</h5><ul>
+<li><strong>HDFS:分布式文件系统</strong><ul>
+<li>ZKFC：为实现NameNode高可用，在NameNode和Zookeeper之间传递信息，选举主节点工具。</li>
+<li>NameNode：存储文件元数据</li>
+<li>DateNode：存储具体数据</li>
+<li>JournalNode：同步主NameNode节点数据到从节点NameNode</li>
+</ul>
+</li>
+<li><strong>MapReduce:开源的分布式批处理计算框架</strong></li>
+<li><strong>Spark：分布式基于内存的批处理框架</strong></li>
+<li><strong>Zookeeper:分布式协调管理</strong></li>
+<li><strong>Yarn:调度资源管理器</strong></li>
+<li>HBase：基于HDFS的NoSql列式数据库</li>
+<li><strong>Hive：将SQL转换为MapReduce进行计算</strong></li>
+<li><strong>Hue：是CDH的一个UI框架</strong></li>
+<li><strong>Impala：是Cloudra公司开发的一个查询系统，类似于Hive，可以通过SQL执行任务，但是它不基于MapReduce算法，而是直接执行分布式计算，这样就提高了效率。</strong></li>
+<li>oozie:是一个工作流调度引擎，负责将多个任务组合在一起按序执行。</li>
+<li>kudu：Apache Kudu是转为hadoop平台开发的列式存储管理器。和impala结合使用，可以进行增删改查。</li>
+<li>Sqoop：将hadoop和关系型数据库互相转移的工具。</li>
+<li>Flume：采集日志</li>
+<li>还有一些其它的<br>![[Pasted image 20230702211449.png]]</li>
+</ul>
+<h2 id="Cloudera-Manager"><a href="#Cloudera-Manager" class="headerlink" title="Cloudera Manager"></a>Cloudera Manager</h2><p>Cloudra Manager简称CM，它是一个web操作平台，可以借助安装CDH然后安装多种Hadoop框架。是用于管理 CDH 集群的端到端应用程序，统一管理和安装。CDH 除了可以通过 CM 安装也可以通过 YUM、TAR、RPM 安装。 CloudraManager技术构成：</p>
+<ul>
+<li>Management Server：Cloudera Manager 的核心。主要用于管理 web server 和应用逻辑。它用于安装软件，配置，开始和停止服务，以及管理服务运行的集群。</li>
+<li>API：通过API和ClouderaManagement和服务器进行交互</li>
+<li>agent：分布在多台服务器，它负责启动和停止进程，部署配置，触发安装和监控主机。</li>
+<li>Database：存储配置和监控信息。通常可以在一个或多个数据库服务器上运行的多个逻辑数据库。例如，所述的 Cloudera 管理器服务和监视，后台程序使用不同的逻辑数据库。</li>
+<li>Parcel（Cloudera Repository）：由 Cloudera 提供的软件分发库。</li>
+<li>Clients：客户端，提供了一个与 Server 交互的接口，通过web页面和ClouderaManager和服务器进行交互。<br>结构图如下：<br>![[Pasted image 20230702212900.png]]</li>
+</ul>
+<h2 id="1、部署前准备工作："><a href="#1、部署前准备工作：" class="headerlink" title="1、部署前准备工作："></a>1、部署前准备工作：</h2><h3 id="服务器节点"><a href="#服务器节点" class="headerlink" title="服务器节点"></a>服务器节点</h3><table>
+<thead>
+<tr>
+<th>NAME</th>
+<th>NUMBER</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Server</td>
+<td>1</td>
+<td>CM 中 Manager 节点</td>
+</tr>
+<tr>
+<td>Agent</td>
+<td>1+N</td>
+<td>CM 中 其余 Node 节点</td>
+</tr>
+</tbody></table>
+<h3 id="软件包准备"><a href="#软件包准备" class="headerlink" title="软件包准备"></a>软件包准备</h3><p>各服务器节点需要：</p>
+<ul>
+<li>JDK 1.8.0_161「1.8 即可，小版本皆可」</li>
+<li>jdk-8u161-linux-x64.tar.gz<br>Server节点需要安装：</li>
+<li>MySQL 5.7.25</li>
+<li>mysql-5.7.25-1.el7.x86_64.rpm-bundle.tar</li>
+<li>MySQL驱动</li>
+<li>mysql-connector-java-5.1.47.jar</li>
+</ul>
+<p>CDH 安装需准备：</p>
+<ul>
+<li>cm6.3.1-redhat7.tar.gz</li>
+<li>cloudera-manager-server-6.3.1-1466458.el7.x86_64.rpm</li>
+<li>cloudera-manager-agent-6.3.1-1466458.el7.x86_64.rpm</li>
+<li>cloudera-manager-daemons-6.3.1-1466458.el7.x86_64.rpm</li>
+<li>allkeys.asc</li>
+<li>parcel包</li>
+<li>CDH-6.3.1-1.cdh6.3.1.p0.1470567-el7.parcel</li>
+<li>CDH-6.3.2-1.cdh6.3.2.p0.1605554-el7.parcel.sha1</li>
+<li>manifest.json</li>
+</ul>
+<h2 id="2、所有节点服务器初始配置"><a href="#2、所有节点服务器初始配置" class="headerlink" title="2、所有节点服务器初始配置"></a>2、所有节点服务器初始配置</h2><ul>
+<li>❗️关闭并禁止开机自启如下服务：系统防火墙（<code>Firewalld</code>、<code>iptables</code>）、<code>NetworkManager</code></li>
+</ul>
+<pre><code class="bash">systemctl stop firewalld
+systemctl stop iptables
+systemctl stop NetworkManager
+
+systemctl disable firewalld
+systemctl disable iptables
+systemctl disable NetworkManager
+</code></pre>
+<ul>
+<li>❗️关闭并禁用 <code>SELinux</code></li>
+</ul>
+<pre><code class="bash">sed -i &#39;s#SELINUX=enforcing#SELINUX=disabled#g&#39; /etc/selinux/config
+</code></pre>
+<ul>
+<li>❗️永久修改各节点的 Hostname 必须防止变回默认</li>
+</ul>
+<pre><code class="bash">hostnamectl set-hostname $HOSTNAME
+</code></pre>
+<ul>
+<li>❗️添加服务器之间本地域名解析 <code>/etc/hosts</code></li>
+</ul>
+<pre><code class="bash">vi /etc/hosts
+# incloud itself
+# 192.168.3.9 PHM01
+# 192.168.3.10 PHM02
+# 192.168.3.11 PHM03
+
+service network restart
+</code></pre>
+<ul>
+<li>❗️配置仅使用物理内存，所有主机都需要</li>
+</ul>
+<pre><code class="bash">echo &quot;vm.swappiness=0&quot; &gt;&gt;/etc/sysctl.conf &amp;&amp; sysctl -p
+</code></pre>
+<ul>
+<li>❗️禁用透明页压缩，所有主机都需要</li>
+</ul>
+<pre><code class="bash">echo &quot;never&quot; &gt;/sys/kernel/mm/transparent_hugepage/defrag
+echo &quot;never&quot; &gt; /sys/kernel/mm/transparent_hugepage/enabled
+chmod +x /etc/rc.local
+echo &quot;never&quot; &gt;/sys/kernel/mm/transparent_hugepage/defrag&quot; &gt;&gt;/etc/rc.local
+echo &quot;never&quot; &gt;/sys/kernel/mm/transparent_hugepage/enabled&quot; &gt;&gt;/etc/rc.local
+tail ‐2 /sys/kernel/mm/transparent_hugepage/defrag
+tail ‐2 /sys/kernel/mm/transparent_hugepage/enabled
+tail ‐2 /etc/rc.local
+
+if test -f /sys/kernel/mm/transparent_hugepage/enabled; then
+echo never &gt; /sys/kernel/mm/transparent_hugepage/enabled
+fi
+if test -f /sys/kernel/mm/transparent_hugepage/defrag; then
+echo never &gt; /sys/kernel/mm/transparent_hugepage/defrag
+fi
+
+# 即时生效 
+echo never &gt; /sys/kernel/mm/transparent_hugepage/defrag 
+echo never &gt; /sys/kernel/mm/transparent_hugepage/enabled 
+# 永久生效 
+# /etc/rc.d/rc.local 中增加下列内容 
+echo never &gt; /sys/kernel/mm/transparent_hugepage/defrag 
+echo never &gt; /sys/kernel/mm/transparent_hugepage/enabled 
+# 赋予rc.local文件执行权限 
+chmod +x /etc/rc.d/rc.local 
+# 验证 
+cat /sys/kernel/mm/transparent_hugepage/defrag 
+cat /sys/kernel/mm/transparent_hugepage/enabled
+</code></pre>
+<ul>
+<li>❗️️ 配置个节点时间同步，确保各个节点时间误差最大不得高于 2s</li>
+</ul>
+<pre><code class="bash">yum -y install ntp
+</code></pre>
+<p><strong>server</strong></p>
+<pre><code class="bash"># 管理节点使用本地时钟源,执行以下语句即可
+cat &lt;&lt;EOF&gt;/etc/ntp.conf
+driftfile /var/lib/ntp/drift
+restrict default kod nomodify notrap nopeer noquery
+restrict -6 default kod nomodify notrap nopeer noquery
+restrict 127.0.0.1
+restrict -6 ::1
+server 127.127.1.0 iburst
+includefile /etc/ntp/crypto/pw
+keys /etc/ntp/keys
+EOF
+</code></pre>
+<p><strong>agent</strong></p>
+<pre><code class="bash"># 其他节点的时钟源为管理节点，执行以下语句即可
+cat &lt;&lt;EOF&gt;/etc/ntp.conf
+driftfile /var/lib/ntp/drift
+restrict default kod nomodify notrap nopeer noquery
+restrict -6 default kod nomodify notrap nopeer noquery
+    restrict 127.0.0.1
+restrict -6 ::1
+server node1  iburst
+includefile /etc/ntp/crypto/pw
+keys /etc/ntp/keys
+EOF
+</code></pre>
+<p>强制设置时间，写入硬件时钟</p>
+<pre><code class="bash"># 修改各节点时间,时间为当前时间
+date -s &quot;2023-06-30 13:11:07&quot;
+# 写入硬件时钟
+hwclock -w
+</code></pre>
+<p>启动服务，并设置开机自启动</p>
+<pre><code class="bash"># 各节点启动服务
+systemctl start ntpd &amp;&amp; systemctl enable ntpd
+</code></pre>
+<ul>
+<li>配置 Java 运行环境，建议安装 JDK 1.8.0_161（亦可选择安装 CDH 时，选择安装 CDH 自带的 Oracle JDK）</li>
+</ul>
+<pre><code class="bash"># JDK 安装路径
+mkdir -p /usr/local/java
+</code></pre>
+<p>若操作系统安装有 OpenJDK 则移除系统原有的 JDK</p>
+<pre><code class="bash"># 各节点都需要进行
+# 查找JDK
+rpm -aq|grep java
+rpm -aq|grep jdk
+# 卸载JDK
+yum -y remove [上述查找结果的包名]
+</code></pre>
+<p>安装  JDK 1.8</p>
+<pre><code class="bash"># 在各节点上进行安装
+# 创建java目录
+mkdir /usr/java/
+# 上传jdk目录下jdk-8u162-linux-x64.tar.gz到/usr/java目录 并解压
+tar -zxvf jdk-8u162-linux-x64.tar.gz -C /usr/java
+# ️ 修改 jdk 所属用户用户组
+chown root:root jdk-8u161-linux-x64
+# 配置环境变量
+vim ~/.bashrc
+# 在后面追加下面三行
+export JAVA_HOME=/usr/java/jdk1.8.0_162
+export JRE_HOME=$&#123;JAVA_HOME&#125;/jre
+export CLASSPATH=.:$&#123;JAVA_HOME&#125;/lib:$&#123;JRE_HOME&#125;/lib
+export PATH=$&#123;JAVA_HOME&#125;/bin:$PATH
+# 最后刷新环境变量
+source ~/.bashrc
+# 查看 Java 是否安装成功
+java -version
+</code></pre>
+<h2 id="3、Server-节点"><a href="#3、Server-节点" class="headerlink" title="3、Server 节点"></a>3、Server 节点</h2><p>若操作系统安装有 mariadb 则手工移除mariadb数据库<br>亦可不移除，在安装 mysql 是会自动处理</p>
+<pre><code class="bash">  rpm -qa | grep mariadb
+# 结果应为 mariadb-libs-5.5.56-2.el7.x86_64
+# 卸载
+  rpm -e --nodeps mariadb-libs-5.5.56-2.el7.x86_64
+</code></pre>
+<pre><code class="bash"># 在 server 上安装 mysql 服务
+# 上传repo目录下mysql-5.7.25-1.el7.x86_64.rpm-bundle.tar安装包到 /home/cdh/ 目录 并解压
+  tar -xvf mysql-5.7.25-1.el7.x86_64.rpm-bundle.tar
+# 进入解压目录 安装 mysql
+  yum install net-tools
+  rpm -ivh mysql-community-server-5.7.25-1.el7.x86_64.rpm mysql-community-client-5.7.25-1.el7.x86_64.rpm mysql-community-common-5.7.25-1.el7.x86_64.rpm mysql-community-libs-5.7.25-1.el7.x86_64.rpm mysql-community-libs-compat-5.7.25-1.el7.x86_64.rpm
+</code></pre>
+<pre><code class="bash"># 在 server上启动 mysql 服务,并设置自启动
+  systemctl start mysqld
+  systemctl enable mysqld
+</code></pre>
+<pre><code class="bash"># 在node1 上初始化mysql
+# 获得初始密码
+  grep &#39;temporary password&#39; /var/log/mysqld.log
+# 使用初始密码登录
+  mysql -u root -p
+# 修改初始密码
+  # show variables like &#39;validate_password%&#39;;# 查看密码验证策略
+  set global validate_password_policy=0;# 设置密码验证策略为低
+  set global validate_password_mixed_case_count=0;# 设置密码至少要包含的大小写字母个数
+  set global validate_password_number_count=0;# 设置密码至少要包含的数字个数
+  set global validate_password_special_char_count=0;# 设置密码至少要包含的特殊字符个数
+  set global validate_password_length=3; # 设置密码最小长度为3
+  ALTER USER &#39;root&#39;@&#39;localhost&#39; IDENTIFIED BY &#39;123456&#39;;
+  grant all privileges on *.* to &#39;root&#39;@&#39;localhost&#39; identified by &#39;123456&#39; with grant option;
+  grant all privileges on *.* to &#39;root&#39;@&#39;%&#39; identified by &#39;123456&#39; with grant option;
+  flush privileges;
+  quit;
+</code></pre>
+<pre><code class="bash"># 在各节点上执行
+# 上传 repo 目录下 mysql 连接 mysql-connector-java-5.1.47.jar 到 /usr/share/java
+  ️ mkdir -p /usr/share/java
+# 重命名
+  ️ mv mysql-connector-java-5.1.47.jar mysql-connector-java.jar
+# 授权
+  ️ chmod 777 mysql-connector-java.jar
+</code></pre>
+<pre><code class="bash">  yum -y install cloudera-manager-agent cloudera-manager-daemons cloudera-manager-server
+</code></pre>
+<pre><code class="shell">  ##执行数据库脚本
+  cd /opt/cloudera/cm/schema
+  ./scm_prepare_database.sh mysql -uroot -p scm scm scm
+</code></pre>
+<pre><code class="bash">vi /etc/cloudera-scm-agent/config.ini
+server_host=$SERVERHOSTNAME
+</code></pre>
+<h2 id="4、Agent-节点"><a href="#4、Agent-节点" class="headerlink" title="4、Agent 节点"></a>4、Agent 节点</h2><pre><code class="bash">yum -y install cloudera-manager-agent cloudera-manager-daemo
+</code></pre>
+<pre><code class="bash">vi /etc/cloudera-scm-agent/config.ini
+server_host=$SERVERHOSTNAME
+</code></pre>
+<h2 id="5、开始启动服务"><a href="#5、开始启动服务" class="headerlink" title="5、开始启动服务"></a>5、开始启动服务</h2><h3 id="server"><a href="#server" class="headerlink" title="server"></a><strong>server</strong></h3><pre><code class="bash">systemctl start cloudera-scm-server
+systemctl enable cloudera-scm-server
+systemctl start cloudera-scm-agent
+systemctl enable cloudera-scm-agent
+</code></pre>
+<h3 id="agent"><a href="#agent" class="headerlink" title="agent"></a><strong>agent</strong></h3><pre><code class="bash">systemctl start cloudera-scm-agent
+systemctl enable cloudera-scm-agent
+</code></pre>
+<h2 id="6、Web操作"><a href="#6、Web操作" class="headerlink" title="6、Web操作"></a>6、Web操作</h2><p><a target="_blank" rel="noopener" href="http://192.168.3.11:7180/">http://192.168.3.11:7180</a><br>默认用户名为 admin<br>默认密码为 admin<br>![[Pasted image 20230705102314.png]]</p>
+<h2 id="附录1-组件建表语句"><a href="#附录1-组件建表语句" class="headerlink" title="附录1 组件建表语句"></a>附录1 组件建表语句</h2><pre><code class="bash">mysql -uroot -p123456
+
+  ##给scm授权
+  grant all privileges on *.* to &#39;scm&#39;@&#39;localhost&#39; identified by &#39;scm&#39; with grant option;
+  grant all privileges on *.* to &#39;scm&#39;@&#39;%&#39; identified by &#39;scm&#39; with grant option;
+
+  ##创建hive数据库
+  create database hive DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+
+  ##给hive授权
+  grant all privileges on *.* to &#39;hive&#39;@&#39;localhost&#39; identified by &#39;hive&#39; with grant option;
+  grant all privileges on *.* to &#39;hive&#39;@&#39;%&#39; identified by &#39;hive&#39; with grant option;
+
+  ##创建oozie数据库
+  create database oozie DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+
+  ##给oozie授权
+  grant all privileges on *.* to &#39;oozie&#39;@&#39;localhost&#39; identified by &#39;oozie&#39; with grant option;
+  grant all privileges on *.* to &#39;oozie&#39;@&#39;%&#39; identified by &#39;oozie&#39; with grant option;
+
+  ##创建hue数据库
+  create database hue DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+
+  ##给hub授权
+  grant all privileges on *.* to &#39;hue&#39;@&#39;localhost&#39; identified by &#39;hue&#39; with grant option;
+  grant all privileges on *.* to &#39;hue&#39;@&#39;%&#39; identified by &#39;hue&#39; with grant option;
+
+  ##刷新权限
+  flush privileges;
+
+  ##退出
+  quit;
+</code></pre>
+<h2 id="附录2-CDH各组件详细信息"><a href="#附录2-CDH各组件详细信息" class="headerlink" title="附录2 CDH各组件详细信息"></a>附录2 CDH各组件详细信息</h2><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Cloudera Manager Agent</td>
+<td>6.3.1</td>
+<td>所有主机</td>
+<td>1466458.el7</td>
+<td>不适用</td>
+</tr>
+<tr>
+<td>Cloudera Manager Management Daemon</td>
+<td>6.3.1</td>
+<td>所有主机</td>
+<td>1466458.el7</td>
+<td>不适用</td>
+</tr>
+<tr>
+<td>Flume NG</td>
+<td>1.9.0+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>Hadoop</td>
+<td>3.0.0+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>HDFS</td>
+<td>3.0.0+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>HttpFS</td>
+<td>3.0.0+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>hadoop-kms</td>
+<td>3.0.0+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>MapReduce 2</td>
+<td>3.0.0+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>YARN</td>
+<td>3.0.0+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>HBase</td>
+<td>2.1.0+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>Lily HBase Indexer</td>
+<td>1.5+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>Hive</td>
+<td>2.1.1+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>HCatalog</td>
+<td>2.1.1+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>Hue</td>
+<td>4.2.0+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>Impala</td>
+<td>3.2.0+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>Java 8</td>
+<td>1.8.0_162</td>
+<td>所有主机</td>
+<td>不可用</td>
+<td>不适用</td>
+</tr>
+<tr>
+<td>Kafka</td>
+<td>2.2.1+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>Kite（仅限 CDH 5 ）</td>
+<td>1.0.0+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>kudu</td>
+<td>1.10.0+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>Oozie</td>
+<td>5.1.0+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>Parquet</td>
+<td>1.9.0+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>Pig</td>
+<td>0.17.0+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>sentry</td>
+<td>2.1.0+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>Solr</td>
+<td>7.4.0+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>spark</td>
+<td>2.4.0+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>Sqoop</td>
+<td>1.4.7+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+<tr>
+<td>ZooKeeper</td>
+<td>3.4.5+cdh6.3.2</td>
+<td>所有主机</td>
+<td>1605554</td>
+<td>CDH 6</td>
+</tr>
+</tbody></table>
+<h1 id="二、"><a href="#二、" class="headerlink" title="二、"></a>二、</h1></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="auhjin.github.io">auhjin_ai8</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章連結: </span><span class="post-copyright-info"><a href="https://auhjin.github.io/2024/01/08/CentOS%207%20CDH%20&amp;%20CM%20%E4%BC%81%E4%B8%9A%E7%BA%A7%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2/">https://auhjin.github.io/2024/01/08/CentOS%207%20CDH%20&amp;%20CM%20%E4%BC%81%E4%B8%9A%E7%BA%A7%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版權聲明: </span><span class="post-copyright-info">本部落格所有文章除特別聲明外，均採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 許可協議。轉載請註明來自 <a href="https://auhjin.github.io" target="_blank">飞驰的细狗</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/bigdata/">bigdata</a><a class="post-meta__tags" href="/tags/linux/">linux</a></div><div class="post_share"><div class="social-share" data-image="/img/data.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/01/08/Docker%20%E6%9C%AC%E5%9C%B0%E9%83%A8%E7%BD%B2Hadoop%EF%BC%8CSpark%EF%BC%8CZookeeper%EF%BC%8CHive%E9%9B%86%E7%BE%A4/" title="Docker 本地部署Hadoop、Spark、Zookeeper、Hive集群"><img class="cover" src="/img/data.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Docker 本地部署Hadoop、Spark、Zookeeper、Hive集群</div></div></a></div><div class="next-post pull-right"><a href="/2024/01/03/hello-world/" title="Hello World"><img class="cover" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Hello World</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相關推薦</span></div><div class="relatedPosts-list"><div><a href="/2024/01/08/Docker%20%E6%9C%AC%E5%9C%B0%E9%83%A8%E7%BD%B2Hadoop%EF%BC%8CSpark%EF%BC%8CZookeeper%EF%BC%8CHive%E9%9B%86%E7%BE%A4/" title="Docker 本地部署Hadoop、Spark、Zookeeper、Hive集群"><img class="cover" src="/img/data.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-08</div><div class="title">Docker 本地部署Hadoop、Spark、Zookeeper、Hive集群</div></div></a></div><div><a href="/2024/01/15/%E6%90%AD%E5%BB%BA%E7%A6%BB%E7%BA%BFyum%E6%BA%90/" title="Linux 搭建离线yum源"><img class="cover" src="/img/qishanyi.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-15</div><div class="title">Linux 搭建离线yum源</div></div></a></div><div><a href="/2024/01/15/Linux%E4%B8%8B%E8%B0%83%E6%95%B4%E6%A0%B9%E7%9B%AE%E5%BD%95%E5%92%8Chome%E7%9B%AE%E5%BD%95%E7%9A%84%E7%A9%BA%E9%97%B4%E5%A4%A7%E5%B0%8F/" title="Linux 调整根目录和home目录的空间大小"><img class="cover" src="/img/qishanyi.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-15</div><div class="title">Linux 调整根目录和home目录的空间大小</div></div></a></div><div><a href="/2024/01/10/Python%20%E7%8E%AF%E5%A2%83%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85/" title="python环境离线安装"><img class="cover" src="/img/python.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-10</div><div class="title">python环境离线安装</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/yuanyuan.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">auhjin_ai8</div><div class="author-info__description">不可磨灭</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">6</div></a><a href="/tags/"><div class="headline">標籤</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分類</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/auhjin"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/auhjin" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:auhjin.ai8@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目錄</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81CentOS-7-CDH-CM-%E4%BC%81%E4%B8%9A%E7%BA%A7%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2"><span class="toc-number">1.</span> <span class="toc-text">一、CentOS 7 CDH &amp; CM 企业级离线部署</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Cloudera%E2%80%99s-Distribution-Including-Apache-Hadoop"><span class="toc-number">1.1.</span> <span class="toc-text">Cloudera’s Distribution Including Apache Hadoop</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Hadoop%E7%94%9F%E6%80%81%E6%9E%84%E6%88%90"><span class="toc-number">1.1.0.0.1.</span> <span class="toc-text">Hadoop生态构成</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Cloudera-Manager"><span class="toc-number">1.2.</span> <span class="toc-text">Cloudera Manager</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E9%83%A8%E7%BD%B2%E5%89%8D%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%EF%BC%9A"><span class="toc-number">1.3.</span> <span class="toc-text">1、部署前准备工作：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%8A%82%E7%82%B9"><span class="toc-number">1.3.1.</span> <span class="toc-text">服务器节点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BD%AF%E4%BB%B6%E5%8C%85%E5%87%86%E5%A4%87"><span class="toc-number">1.3.2.</span> <span class="toc-text">软件包准备</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%9D%E5%A7%8B%E9%85%8D%E7%BD%AE"><span class="toc-number">1.4.</span> <span class="toc-text">2、所有节点服务器初始配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81Server-%E8%8A%82%E7%82%B9"><span class="toc-number">1.5.</span> <span class="toc-text">3、Server 节点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81Agent-%E8%8A%82%E7%82%B9"><span class="toc-number">1.6.</span> <span class="toc-text">4、Agent 节点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E5%BC%80%E5%A7%8B%E5%90%AF%E5%8A%A8%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.7.</span> <span class="toc-text">5、开始启动服务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#server"><span class="toc-number">1.7.1.</span> <span class="toc-text">server</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#agent"><span class="toc-number">1.7.2.</span> <span class="toc-text">agent</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6%E3%80%81Web%E6%93%8D%E4%BD%9C"><span class="toc-number">1.8.</span> <span class="toc-text">6、Web操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%84%E5%BD%951-%E7%BB%84%E4%BB%B6%E5%BB%BA%E8%A1%A8%E8%AF%AD%E5%8F%A5"><span class="toc-number">1.9.</span> <span class="toc-text">附录1 组件建表语句</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%84%E5%BD%952-CDH%E5%90%84%E7%BB%84%E4%BB%B6%E8%AF%A6%E7%BB%86%E4%BF%A1%E6%81%AF"><span class="toc-number">1.10.</span> <span class="toc-text">附录2 CDH各组件详细信息</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81"><span class="toc-number">2.</span> <span class="toc-text">二、</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/01/15/%E6%90%AD%E5%BB%BA%E7%A6%BB%E7%BA%BFyum%E6%BA%90/" title="Linux 搭建离线yum源"><img src="/img/qishanyi.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Linux 搭建离线yum源"/></a><div class="content"><a class="title" href="/2024/01/15/%E6%90%AD%E5%BB%BA%E7%A6%BB%E7%BA%BFyum%E6%BA%90/" title="Linux 搭建离线yum源">Linux 搭建离线yum源</a><time datetime="2024-01-15T08:30:00.000Z" title="發表於 2024-01-15 16:30:00">2024-01-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/01/15/Linux%E4%B8%8B%E8%B0%83%E6%95%B4%E6%A0%B9%E7%9B%AE%E5%BD%95%E5%92%8Chome%E7%9B%AE%E5%BD%95%E7%9A%84%E7%A9%BA%E9%97%B4%E5%A4%A7%E5%B0%8F/" title="Linux 调整根目录和home目录的空间大小"><img src="/img/qishanyi.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Linux 调整根目录和home目录的空间大小"/></a><div class="content"><a class="title" href="/2024/01/15/Linux%E4%B8%8B%E8%B0%83%E6%95%B4%E6%A0%B9%E7%9B%AE%E5%BD%95%E5%92%8Chome%E7%9B%AE%E5%BD%95%E7%9A%84%E7%A9%BA%E9%97%B4%E5%A4%A7%E5%B0%8F/" title="Linux 调整根目录和home目录的空间大小">Linux 调整根目录和home目录的空间大小</a><time datetime="2024-01-15T08:30:00.000Z" title="發表於 2024-01-15 16:30:00">2024-01-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/01/10/Python%20%E7%8E%AF%E5%A2%83%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85/" title="python环境离线安装"><img src="/img/python.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="python环境离线安装"/></a><div class="content"><a class="title" href="/2024/01/10/Python%20%E7%8E%AF%E5%A2%83%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85/" title="python环境离线安装">python环境离线安装</a><time datetime="2024-01-10T08:30:00.000Z" title="發表於 2024-01-10 16:30:00">2024-01-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/01/08/Docker%20%E6%9C%AC%E5%9C%B0%E9%83%A8%E7%BD%B2Hadoop%EF%BC%8CSpark%EF%BC%8CZookeeper%EF%BC%8CHive%E9%9B%86%E7%BE%A4/" title="Docker 本地部署Hadoop、Spark、Zookeeper、Hive集群"><img src="/img/data.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Docker 本地部署Hadoop、Spark、Zookeeper、Hive集群"/></a><div class="content"><a class="title" href="/2024/01/08/Docker%20%E6%9C%AC%E5%9C%B0%E9%83%A8%E7%BD%B2Hadoop%EF%BC%8CSpark%EF%BC%8CZookeeper%EF%BC%8CHive%E9%9B%86%E7%BE%A4/" title="Docker 本地部署Hadoop、Spark、Zookeeper、Hive集群">Docker 本地部署Hadoop、Spark、Zookeeper、Hive集群</a><time datetime="2024-01-08T08:30:00.000Z" title="發表於 2024-01-08 16:30:00">2024-01-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/01/08/CentOS%207%20CDH%20&amp;%20CM%20%E4%BC%81%E4%B8%9A%E7%BA%A7%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2/" title="Centos7 CDH&amp;CM 企业内网离线部署"><img src="/img/data.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Centos7 CDH&amp;CM 企业内网离线部署"/></a><div class="content"><a class="title" href="/2024/01/08/CentOS%207%20CDH%20&amp;%20CM%20%E4%BC%81%E4%B8%9A%E7%BA%A7%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2/" title="Centos7 CDH&amp;CM 企业内网离线部署">Centos7 CDH&amp;CM 企业内网离线部署</a><time datetime="2024-01-08T08:30:00.000Z" title="發表於 2024-01-08 16:30:00">2024-01-08</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">&copy;2023 - 2024 By auhjin_ai8</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主題 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="閱讀模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="淺色和深色模式轉換"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="單欄和雙欄切換"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="設定"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目錄"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="返回頂部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.12.0"></script><script src="/js/main.js?v=4.12.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.32/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar@0.1.16/dist/snackbar.min.js"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-fluttering-ribbon.min.js"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-nest.min.js"></script><link rel="stylesheet" href="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.js"></script><script src="https://npm.elemecdn.com/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+
+  // removeEventListener
+  btf.removeGlobalFnEvent('pjax')
+  btf.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+
+  typeof disqusjs === 'object' && disqusjs.destroy()
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜尋</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  資料庫載入中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜尋文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.12.0"></script></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜尋</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  資料庫載入中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜尋文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.12.0"></script></div><div><script src="/js/utils.js?v=4.12.0"></script><script src="/js/main.js?v=4.12.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.32/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar@0.1.16/dist/snackbar.min.js"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-fluttering-ribbon.min.js"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-nest.min.js"></script><link rel="stylesheet" href="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.js"></script><script src="https://npm.elemecdn.com/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+
+  // removeEventListener
+  btf.removeGlobalFnEvent('pjax')
+  btf.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+
+  typeof disqusjs === 'object' && disqusjs.destroy()
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜尋</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  資料庫載入中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜尋文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.12.0"></script></div></div></body></html>
