@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>基于注意力网络的多元时序分类模型(TapNet)</title>
+      <link href="/2024/02/01/%E5%9F%BA%E4%BA%8E%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%8E%9F%E5%9E%8B%E7%BD%91%E7%BB%9C%E7%9A%84%E5%A4%9A%E5%85%83%E6%97%B6%E5%BA%8F%E5%88%86%E7%B1%BB(TapNet)/"/>
+      <url>/2024/02/01/%E5%9F%BA%E4%BA%8E%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%8E%9F%E5%9E%8B%E7%BD%91%E7%BB%9C%E7%9A%84%E5%A4%9A%E5%85%83%E6%97%B6%E5%BA%8F%E5%88%86%E7%B1%BB(TapNet)/</url>
+      
+        <content type="html"><![CDATA[<h3 id="论文名称：TapNet-Multivariate-Time-Series-Classification-with-Attentional-Prototypical-Network"><a href="#论文名称：TapNet-Multivariate-Time-Series-Classification-with-Attentional-Prototypical-Network" class="headerlink" title="论文名称：TapNet: Multivariate Time Series Classification with Attentional Prototypical Network"></a>论文名称：TapNet: Multivariate Time Series Classification with Attentional Prototypical Network</h3><h3 id="作者：Xuchao-Zhang-Yifeng-Gao-Jessica-Lin-etl"><a href="#作者：Xuchao-Zhang-Yifeng-Gao-Jessica-Lin-etl" class="headerlink" title="作者：Xuchao Zhang, Yifeng Gao, Jessica Lin etl."></a>作者：Xuchao Zhang, Yifeng Gao, Jessica Lin etl.</h3><h3 id="摘要："><a href="#摘要：" class="headerlink" title="摘要："></a>摘要：</h3><p>随着传感器技术的进步，多元时序分类（MTSC）问题成为时间序列数据挖掘领域最重要的问题之一，近些年来不断受到广泛关注 <strong>···特别是在智能制造、工业互联网领域，有着丰富的应用场景和数据分析需求···</strong><br>传统的基于时间序列分类方法 主要是基于 bag-of-patterns 或者 times series shapelet ，它们难以处理高维多元数据中生成的大量候选特征， 只能在训练集较小的情况下具有良好的性能 。<br>相比之下，基于深度学的方法可以有效地学习低维特征，<strong>但缺乏标记数据</strong></p><p>在 TapNet的论文中，提出了一种带有注意力原型网络的新型MTSC模型，以发挥传统方法和基于深度学习方法的优点。 Specifically， 设计了一种结合多层卷积网络的随机组排列算方法，从多元时序数据中学习地位特征。为了解决训练标签 有限的问题。提出了一种新的注意力原型网络，根据与数据标签不足的类圆形的距离来训练特征表示。 另外，通过利用为标记数据将模型扩展到半监督设置。</p><h3 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h3><p>时间序列是一组按时间顺序排列的实际观测值；多元时间序列是一组共同演化的时间序列，通常由一组传感器随着时间的推移共同记录。近十年随着传感器技术和大数据技术的不断进步，多元时序分类问题 The Multivariate Time Series Classification (MTSC)：识别多变量时间序列数据记录的标签，开始受到广泛的关注和研究。<br>由于时间序列数据是一种流行的数据类型，存在于广泛的研究领域和应用中，因此多元时间序列分类模型已被用于许多不同的现实应用中，例如人类活动识别Human Activity Recognition，脑电图&#x2F;心电图识别分析EEG&#x2F;ECG data analysis。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Deep Learning </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 深度学习 </tag>
+            
+            <tag> 多元时序 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Centos7 CDH&amp;CM 企业内网离线部署</title>
       <link href="/2024/01/18/CentOS%207%20CDH%20&amp;%20CM%20%E4%BC%81%E4%B8%9A%E7%BA%A7%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2/"/>
       <url>/2024/01/18/CentOS%207%20CDH%20&amp;%20CM%20%E4%BC%81%E4%B8%9A%E7%BA%A7%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2/</url>
