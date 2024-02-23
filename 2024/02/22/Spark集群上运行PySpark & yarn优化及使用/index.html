@@ -1,0 +1,411 @@
+<!DOCTYPE html><html lang="zh-TW" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>PySpark yarn优化以及使用 | 飞驰的细狗</title><meta name="author" content="auhjin_ai8"><meta name="copyright" content="auhjin_ai8"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="0、引言本文内容涉及PySpark的依赖打包和python虚拟环境的使用。以下均经过实验验证其正确性。 1、在Spark集群上运行PySpark Application大致分为如下3种情况： 1.1 YARN集群配置Python环境如果是初始安装YARN、Spark集群，并考虑到了当前应用场景需要支持Python程序运行在Spark集群之上，这时可以准备好对应Python软件包、依赖模块，在YAR">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PySpark yarn优化以及使用">
+<meta property="og:url" content="https://auhjin.github.io/2024/02/22/Spark%E9%9B%86%E7%BE%A4%E4%B8%8A%E8%BF%90%E8%A1%8CPySpark%20&%20yarn%E4%BC%98%E5%8C%96%E5%8F%8A%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="飞驰的细狗">
+<meta property="og:description" content="0、引言本文内容涉及PySpark的依赖打包和python虚拟环境的使用。以下均经过实验验证其正确性。 1、在Spark集群上运行PySpark Application大致分为如下3种情况： 1.1 YARN集群配置Python环境如果是初始安装YARN、Spark集群，并考虑到了当前应用场景需要支持Python程序运行在Spark集群之上，这时可以准备好对应Python软件包、依赖模块，在YAR">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://auhjin.github.io/img/spark.jpg">
+<meta property="article:published_time" content="2024-02-22T08:30:00.000Z">
+<meta property="article:modified_time" content="2024-02-23T02:30:00.000Z">
+<meta property="article:author" content="auhjin_ai8">
+<meta property="article:tag" content="bigdata">
+<meta property="article:tag" content="spark">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://auhjin.github.io/img/spark.jpg"><link rel="shortcut icon" href="/img/logo.png"><link rel="canonical" href="https://auhjin.github.io/2024/02/22/Spark%E9%9B%86%E7%BE%A4%E4%B8%8A%E8%BF%90%E8%A1%8CPySpark%20&amp;%20yarn%E4%BC%98%E5%8C%96%E5%8F%8A%E4%BD%BF%E7%94%A8/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.12.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.32/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?830c22da3f3d148d0977a09fcbcd2610";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查詢的內容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '複製成功',
+    error: '複製錯誤',
+    noSupport: '瀏覽器不支援'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '剛剛',
+    min: '分鐘前',
+    hour: '小時前',
+    day: '天前',
+    month: '個月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切換為繁體中文","cht_to_chs":"你已切換為簡體中文","day_to_night":"你已切換為深色模式","night_to_day":"你已切換為淺色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.0/dist/infinitegrid.min.js',
+    buttonText: '載入更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'PySpark yarn优化以及使用',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: true,
+  isToc: true,
+  postUpdate: '2024-02-23 10:30:00'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><!-- hexo injector head_end start --><link rel="stylesheet" href="https://www.fomal.cc/static/css/runtime.min.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">載入中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+  window.addEventListener('load',() => { preloader.endLoading() })
+
+  if (true) {
+    document.addEventListener('pjax:send', () => { preloader.initLoading() })
+    document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+  }
+})()</script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/yuanyuan.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">8</div></a><a href="/tags/"><div class="headline">標籤</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">分類</div><div class="length-num">6</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/weekly/"><i class="fa-fw fas fa-newspaper"></i><span> 周报</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/album/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/spark.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="飞驰的细狗"><img class="site-icon" src="/img/logo.png"/><span class="site-name">飞驰的细狗</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜尋</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/weekly/"><i class="fa-fw fas fa-newspaper"></i><span> 周报</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/album/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">PySpark yarn优化以及使用</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">發表於</span><time class="post-meta-date-created" datetime="2024-02-22T08:30:00.000Z" title="發表於 2024-02-22 16:30:00">2024-02-22</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新於</span><time class="post-meta-date-updated" datetime="2024-02-23T02:30:00.000Z" title="更新於 2024-02-23 10:30:00">2024-02-23</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/bigdata/">bigdata</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/bigdata/spark/">spark</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字數總計:</span><span class="word-count">2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">閱讀時長:</span><span>7分鐘</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="PySpark yarn优化以及使用"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">閱讀量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="0、引言"><a href="#0、引言" class="headerlink" title="0、引言"></a>0、引言</h2><p>本文内容涉及PySpark的依赖打包和python虚拟环境的使用。<br>以下均经过实验验证其正确性。</p>
+<h2 id="1、在Spark集群上运行PySpark-Application"><a href="#1、在Spark集群上运行PySpark-Application" class="headerlink" title="1、在Spark集群上运行PySpark Application"></a>1、在Spark集群上运行PySpark Application</h2><p>大致分为如下3种情况：</p>
+<h3 id="1-1-YARN集群配置Python环境"><a href="#1-1-YARN集群配置Python环境" class="headerlink" title="1.1 YARN集群配置Python环境"></a>1.1 YARN集群配置Python环境</h3><pre><code>如果是初始安装YARN、Spark集群，并考虑到了当前应用场景需要支持Python程序运行在Spark集群之上，这时可以准备好对应Python软件包、依赖模块，在YARN集群中的每个节点上进行安装。这样，YARN集群的每个NodeManager上都具有Python环境，可以编写PySpark Application并在集群上运行。目前比较流行的是直接安装Python虚拟环境，使用Anaconda/Miniconda等软件，可以极大地简化Python环境的管理工作。
+这种方式的缺点是，如果后续使用Python编写Spark Application，需要增加新的依赖模块，那么就需要在YARN集群的每个节点上都进行该新增模块的安装。而且，如果依赖Python的版本，可能还需要管理不同版本Python环境。因为提交PySpark Application运行，具体在哪些NodeManager上运行该Application，是由YARN的调度器决定的，必须保证每个NodeManager上都具有Python环境（基础环境+依赖模块）。
+</code></pre>
+<h3 id="1-2-YARN集群不配置Python环境"><a href="#1-2-YARN集群不配置Python环境" class="headerlink" title="1.2 YARN集群不配置Python环境"></a>1.2 YARN集群不配置Python环境</h3><pre><code>这种情况，更适合企业已经安装了规模较大的YARN集群，并在开始使用时并未考虑到后续会使用基于Python来编写Spark Application，并且不想在YARN集群的NodeManager上安装Python基础环境及其依赖模块。我们参考了Benjamin Zaitlen的博文（详见后面参考链接），并基于Anaconda软件环境进行了实践和验证，具体实现思路如下所示：
+
+在任意一个Linux OS的节点上，安装Anaconda软件
+通过Anaconda创建虚拟Python环境
+在创建好的Python环境中下载安装依赖的Python模块
+将整个Python环境打成zip包
+提交PySpark Application时，并通过--archives选项指定zip包路径
+</code></pre>
+<p>python环境打包首先参考链接[[Python 环境离线安装]]<br>[Python 环境离线安装](<a href="https://auhjin.github.io/2024/01/10/Python">https://auhjin.github.io/2024/01/10/Python</a> 环境离线安装&#x2F;)<br>打包conda镜像</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cd /usr/local/miniconda3/envs</span><br><span class="line">zip -r spark_env.zip spark_env</span><br><span class="line">cp spark_env.zip /opt/bigdata</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">通过使用 archives 参数上传pysaprk环境所需的python依赖</span></span><br><span class="line">spark-submit --archives /opt/bigdata/spark_env.zip</span><br></pre></td></tr></table></figure>
+<h3 id="1-3-基于混合编程语言环境"><a href="#1-3-基于混合编程语言环境" class="headerlink" title="1.3 基于混合编程语言环境"></a>1.3 基于混合编程语言环境</h3><pre><code>假如我们还是希望使用Spark on YARN模式来运行PySpark Application，但并不将Python程序提交到YARN集群上运行。这时，我们可以考虑使用混合编程语言的方式，来处理数据任务。比如，机器学习Application具有迭代计算的特性，更适合在一个高配的节点上运行；而普通的ETL数据处理具有多机并行处理的特点，适合放到集群上进行分布式处理。
+
+一个完整的机器学习Application的设计与构建，可以将算法部分和数据准备部分分离出来，使用Scala/Java进行数据预处理，输出一个机器学习算法所需要（更便于迭代、寻优计算）的输入数据格式，这会极大地压缩算法输入数据的规模，从而使算法迭代计算充分利用单机本地的资源（内存、CPU、网络），这可能会比直接放到集群中计算要快得多。
+
+因此，我们在对机器学习Application准备数据时，使用原生的Scala编程语言实现Spark Application来处理数据，包括转换、统计、压缩等等，将满足算法输入格式的数据输出到HDFS指定目录中。在性能方面，对数据规模较大的情况下，在Spark集群上处理数据，Scala/Java实现的Spark Application运行性能要好一些。然后，算法迭代部分，基于丰富、高性能的Python科学计算模块，使用Python语言实现，其实直接使用PySpark API实现一个机器学习PySpark Application，运行模式为YARN client模式。这时，就需要在算法运行的节点上安装好Python环境及其依赖模块（而不需要在YARN集群的节点上安装），Driver程序从HDFS中读取输入数据（缓存到本地），然后在本地进行算法的迭代计算，最后输出模型。
+</code></pre>
+<p>总结</p>
+<pre><code>对于重度使用PySpark的情况，比如偏向机器学习，可以考虑在整个集群中都安装好Python环境，并根据不同的需要进行依赖模块的统一管理，能够极大地方便PySpark Application的运行。
+
+不在YARN集群上安装Python环境的方案，会使提交的Python环境zip包在YARN集群中传输带来一定开销，而且每次提交一个PySpark Application都需要打包一个环境zip文件，如果有大量的Python实现的PySpark Application需要在Spark集群上运行，开销会越来越大。另外，如果PySpark应用程序修改，可能需要重新打包环境。但是这样做确实不在需要考虑YARN集群集群节点上的Python环境了，任何版本Python编写的PySpark Application都可以使用集群资源运行。
+</code></pre>
+<h2 id="2、使用-spark-submit-下-yarn-的常见模式以及区别"><a href="#2、使用-spark-submit-下-yarn-的常见模式以及区别" class="headerlink" title="2、使用 spark-submit 下 yarn 的常见模式以及区别"></a>2、使用 spark-submit 下 yarn 的常见模式以及区别</h2><h3 id="2-1-yarn-模式"><a href="#2-1-yarn-模式" class="headerlink" title="2.1 yarn 模式"></a>2.1 yarn 模式</h3><ul>
+<li>client 模式<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">提交方式： `–master yarn –deploy-mode client`</span><br><span class="line">特点：  </span><br><span class="line">1，driver运行在提交作业的机器上(可以看到程序打印日志)；</span><br></pre></td></tr></table></figure></li>
+<li>cluster 模式<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">提交方式： `–<span class="keyword">master</span> <span class="title">yarn</span> –deploy-mode cluster`</span><br><span class="line">特点：  </span><br><span class="line"><span class="number">1</span>，driver运行在集群上某个机器上（看不到日志，只可以看到running状态）,Driver在AppMaster执行;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="2-2-使用场景"><a href="#2-2-使用场景" class="headerlink" title="2.2 使用场景"></a>2.2 使用场景</h3><ul>
+<li>如果在<code>appmanager</code>和<code>nodemanger</code>不在同一网段，采用<code>spark-cluster</code>模式，减少网络延迟。</li>
+<li>如果节点数很多，采用<code>spark-cluster</code>，这样可以资源均衡。</li>
+<li>如果节点数少，又在同一网段，<code>client模式</code>和<code>cluster模式</code>，都是可以的。</li>
+<li>在刚上线时也要采用<code>spark-client模式</code>，这样可以获取信息，都没有问题了，稳定了，再切换到<code>spark-cluster</code>模式。</li>
+</ul>
+<h2 id="3、yarn模式下的依赖包提交"><a href="#3、yarn模式下的依赖包提交" class="headerlink" title="3、yarn模式下的依赖包提交"></a>3、yarn模式下的依赖包提交</h2><p>spark-submit ， 使用–py-files 参数选项，作用是声明Drive依赖模块的路径，Driver把路径下的文件拷贝到HDFS对应的application文件下。<br>运行时，打印的日志如下：</p>
+<figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">```</span><br><span class="line">如果需要上传文件资源，则使用`--files`【作用：把文件放置在每个executor工作目录的文件列表】</span><br></pre></td></tr></table></figure>
+<ol>
+<li><p><code>--master &lt;master-url&gt;</code>：指定集群的master URL，可以是local、yarn、mesos、standalone等。</p>
+</li>
+<li><p><code>--deploy-mode &lt;deploy-mode&gt;</code>：指定应用程序的部署模式，可以是cluster或client。cluster模式表示驱动程序运行在集群中，client模式表示驱动程序运行在提交应用程序的机器上。</p>
+</li>
+<li><p><code>--conf &lt;key=value&gt;</code>：用于设置Spark应用程序的配置选项，例如设置内存、并行度等。</p>
+</li>
+<li><p><code>--driver-memory &lt;value&gt;</code>：指定驱动程序的内存大小，例如<code>--driver-memory 4g</code>表示4GB内存。</p>
+</li>
+<li><p><code>--executor-memory &lt;value&gt;</code>：指定每个执行器的内存大小，例如<code>--executor-memory 2g</code>表示2GB内存。</p>
+</li>
+<li><p><code>--executor-cores &lt;number of cores&gt;</code>：指定每个执行器的CPU核心数。</p>
+</li>
+<li><p><code>--py-files &lt;comma separated dependencies&gt;</code>：指定要与应用程序一起分发的Python文件，可以是.py、.zip或.egg文件。</p>
+</li>
+<li><p><code>--jars &lt;comma separated dependencies&gt;</code>：指定要与应用程序一起使用的依赖项的JAR包。</p>
+</li>
+<li><p><code>--files &lt;comma separated files&gt;</code>：指定要与应用程序一起使用的文件</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+<p>.&#x2F;spark-submit –master yarn –deploy-mode cluster –files &#x2F;opt&#x2F;bigdata&#x2F;batch&#x2F;config_batch.properties –executor-memory 2g –executor-cores 1 –num-executors 5 –driver-memory 2G  –archives&#x3D;&#x2F;opt&#x2F;bigdata&#x2F;batch&#x2F;spark3.1_env.zip –jars &#x2F;usr&#x2F;local&#x2F;spark-yarn&#x2F;jars&#x2F;mysql-connector-java-5.1.47.jar,&#x2F;usr&#x2F;local&#x2F;spark-yarn&#x2F;jars&#x2F;taos-jdbcdriver-2.0.34.jar,&#x2F;usr&#x2F;local&#x2F;spark-yarn&#x2F;jars&#x2F;spark-redis-2.4.0-jar-with-dependencies.jar,&#x2F;usr&#x2F;local&#x2F;spark-yarn&#x2F;jars&#x2F;fastjson-1.2.73.jar –conf spark.yarn.appMasterEnv.PYSPARK_PYTHON&#x3D;&#x2F;usr&#x2F;local&#x2F;miniconda3&#x2F;bin&#x2F;python &#x2F;opt&#x2F;bigdata&#x2F;batch&#x2F;HealthScoreHFL2.py</p>
+</li>
+</ol>
+<pre><code>
+</code></pre>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="auhjin.github.io">auhjin_ai8</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章連結: </span><span class="post-copyright-info"><a href="https://auhjin.github.io/2024/02/22/Spark%E9%9B%86%E7%BE%A4%E4%B8%8A%E8%BF%90%E8%A1%8CPySpark%20&amp;%20yarn%E4%BC%98%E5%8C%96%E5%8F%8A%E4%BD%BF%E7%94%A8/">https://auhjin.github.io/2024/02/22/Spark集群上运行PySpark &amp; yarn优化及使用/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版權聲明: </span><span class="post-copyright-info">本部落格所有文章除特別聲明外，均採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 許可協議。轉載請註明來自 <a href="https://auhjin.github.io" target="_blank">飞驰的细狗</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/bigdata/">bigdata</a><a class="post-meta__tags" href="/tags/spark/">spark</a></div><div class="post_share"><div class="social-share" data-image="/img/spark.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2024/02/01/%E5%9F%BA%E4%BA%8E%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%8E%9F%E5%9E%8B%E7%BD%91%E7%BB%9C%E7%9A%84%E5%A4%9A%E5%85%83%E6%97%B6%E5%BA%8F%E5%88%86%E7%B1%BB(TapNet)/" title="基于注意力网络的多元时序分类模型(TapNet)"><img class="cover" src="/img/data.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">基于注意力网络的多元时序分类模型(TapNet)</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相關推薦</span></div><div class="relatedPosts-list"><div><a href="/2024/01/08/Docker%20%E6%9C%AC%E5%9C%B0%E9%83%A8%E7%BD%B2Hadoop%EF%BC%8CSpark%EF%BC%8CZookeeper%EF%BC%8CHive%E9%9B%86%E7%BE%A4/" title="Docker 本地部署Hadoop、Spark、Zookeeper、Hive集群"><img class="cover" src="/img/data.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-08</div><div class="title">Docker 本地部署Hadoop、Spark、Zookeeper、Hive集群</div></div></a></div><div><a href="/2024/01/18/CentOS%207%20CDH%20&%20CM%20%E4%BC%81%E4%B8%9A%E7%BA%A7%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2/" title="Centos7 CDH&amp;CM 企业内网离线部署"><img class="cover" src="/img/data.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-18</div><div class="title">Centos7 CDH&amp;CM 企业内网离线部署</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/yuanyuan.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">auhjin_ai8</div><div class="author-info__description">元宝是最可爱的猫，我好想他</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">8</div></a><a href="/tags/"><div class="headline">標籤</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">分類</div><div class="length-num">6</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/auhjin"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/auhjin" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:auhjin.ai8@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a><a class="social-icon" href="https://www.xiaohongshu.com/user/profile/618384d4000000000201abbb" target="_blank" title="XiaoHongshu"><i class="fa fa-address-book" style="color: #FF0000;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目錄</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0%E3%80%81%E5%BC%95%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">0、引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%9C%A8Spark%E9%9B%86%E7%BE%A4%E4%B8%8A%E8%BF%90%E8%A1%8CPySpark-Application"><span class="toc-number">2.</span> <span class="toc-text">1、在Spark集群上运行PySpark Application</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-YARN%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AEPython%E7%8E%AF%E5%A2%83"><span class="toc-number">2.1.</span> <span class="toc-text">1.1 YARN集群配置Python环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-YARN%E9%9B%86%E7%BE%A4%E4%B8%8D%E9%85%8D%E7%BD%AEPython%E7%8E%AF%E5%A2%83"><span class="toc-number">2.2.</span> <span class="toc-text">1.2 YARN集群不配置Python环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-%E5%9F%BA%E4%BA%8E%E6%B7%B7%E5%90%88%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%8E%AF%E5%A2%83"><span class="toc-number">2.3.</span> <span class="toc-text">1.3 基于混合编程语言环境</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E4%BD%BF%E7%94%A8-spark-submit-%E4%B8%8B-yarn-%E7%9A%84%E5%B8%B8%E8%A7%81%E6%A8%A1%E5%BC%8F%E4%BB%A5%E5%8F%8A%E5%8C%BA%E5%88%AB"><span class="toc-number">3.</span> <span class="toc-text">2、使用 spark-submit 下 yarn 的常见模式以及区别</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-yarn-%E6%A8%A1%E5%BC%8F"><span class="toc-number">3.1.</span> <span class="toc-text">2.1 yarn 模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">3.2.</span> <span class="toc-text">2.2 使用场景</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81yarn%E6%A8%A1%E5%BC%8F%E4%B8%8B%E7%9A%84%E4%BE%9D%E8%B5%96%E5%8C%85%E6%8F%90%E4%BA%A4"><span class="toc-number">4.</span> <span class="toc-text">3、yarn模式下的依赖包提交</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/02/22/Spark%E9%9B%86%E7%BE%A4%E4%B8%8A%E8%BF%90%E8%A1%8CPySpark%20&amp;%20yarn%E4%BC%98%E5%8C%96%E5%8F%8A%E4%BD%BF%E7%94%A8/" title="PySpark yarn优化以及使用"><img src="/img/spark.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="PySpark yarn优化以及使用"/></a><div class="content"><a class="title" href="/2024/02/22/Spark%E9%9B%86%E7%BE%A4%E4%B8%8A%E8%BF%90%E8%A1%8CPySpark%20&amp;%20yarn%E4%BC%98%E5%8C%96%E5%8F%8A%E4%BD%BF%E7%94%A8/" title="PySpark yarn优化以及使用">PySpark yarn优化以及使用</a><time datetime="2024-02-22T08:30:00.000Z" title="發表於 2024-02-22 16:30:00">2024-02-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/02/01/%E5%9F%BA%E4%BA%8E%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%8E%9F%E5%9E%8B%E7%BD%91%E7%BB%9C%E7%9A%84%E5%A4%9A%E5%85%83%E6%97%B6%E5%BA%8F%E5%88%86%E7%B1%BB(TapNet)/" title="基于注意力网络的多元时序分类模型(TapNet)"><img src="/img/data.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="基于注意力网络的多元时序分类模型(TapNet)"/></a><div class="content"><a class="title" href="/2024/02/01/%E5%9F%BA%E4%BA%8E%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%8E%9F%E5%9E%8B%E7%BD%91%E7%BB%9C%E7%9A%84%E5%A4%9A%E5%85%83%E6%97%B6%E5%BA%8F%E5%88%86%E7%B1%BB(TapNet)/" title="基于注意力网络的多元时序分类模型(TapNet)">基于注意力网络的多元时序分类模型(TapNet)</a><time datetime="2024-02-01T08:30:00.000Z" title="發表於 2024-02-01 16:30:00">2024-02-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/01/18/CentOS%207%20CDH%20&amp;%20CM%20%E4%BC%81%E4%B8%9A%E7%BA%A7%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2/" title="Centos7 CDH&amp;CM 企业内网离线部署"><img src="/img/data.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Centos7 CDH&amp;CM 企业内网离线部署"/></a><div class="content"><a class="title" href="/2024/01/18/CentOS%207%20CDH%20&amp;%20CM%20%E4%BC%81%E4%B8%9A%E7%BA%A7%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2/" title="Centos7 CDH&amp;CM 企业内网离线部署">Centos7 CDH&amp;CM 企业内网离线部署</a><time datetime="2024-01-18T08:30:00.000Z" title="發表於 2024-01-18 16:30:00">2024-01-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/01/15/Linux%E4%B8%8B%E8%B0%83%E6%95%B4%E6%A0%B9%E7%9B%AE%E5%BD%95%E5%92%8Chome%E7%9B%AE%E5%BD%95%E7%9A%84%E7%A9%BA%E9%97%B4%E5%A4%A7%E5%B0%8F/" title="Linux 调整根目录和home目录的空间大小"><img src="/img/qishanyi.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Linux 调整根目录和home目录的空间大小"/></a><div class="content"><a class="title" href="/2024/01/15/Linux%E4%B8%8B%E8%B0%83%E6%95%B4%E6%A0%B9%E7%9B%AE%E5%BD%95%E5%92%8Chome%E7%9B%AE%E5%BD%95%E7%9A%84%E7%A9%BA%E9%97%B4%E5%A4%A7%E5%B0%8F/" title="Linux 调整根目录和home目录的空间大小">Linux 调整根目录和home目录的空间大小</a><time datetime="2024-01-15T08:30:00.000Z" title="發表於 2024-01-15 16:30:00">2024-01-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/01/15/%E6%90%AD%E5%BB%BA%E7%A6%BB%E7%BA%BFyum%E6%BA%90/" title="Linux 搭建离线yum源"><img src="/img/qishanyi.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Linux 搭建离线yum源"/></a><div class="content"><a class="title" href="/2024/01/15/%E6%90%AD%E5%BB%BA%E7%A6%BB%E7%BA%BFyum%E6%BA%90/" title="Linux 搭建离线yum源">Linux 搭建离线yum源</a><time datetime="2024-01-15T08:30:00.000Z" title="發表於 2024-01-15 16:30:00">2024-01-15</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">&copy;2023 - 2024 By auhjin_ai8</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主題 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">you know nothing about the world， trying to keep learning。</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="閱讀模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="簡繁轉換">繁</button><button id="darkmode" type="button" title="淺色和深色模式轉換"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="單欄和雙欄切換"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="設定"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目錄"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="返回頂部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.12.0"></script><script src="/js/main.js?v=4.12.0"></script><script src="/js/tw_cn.js?v=4.12.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.32/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar@0.1.16/dist/snackbar.min.js"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-fluttering-ribbon.min.js"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-nest.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.js"></script><script src="https://npm.elemecdn.com/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+
+  // removeEventListener
+  btf.removeGlobalFnEvent('pjax')
+  btf.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+
+  typeof disqusjs === 'object' && disqusjs.destroy()
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜尋</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  資料庫載入中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜尋文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.12.0"></script></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜尋</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  資料庫載入中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜尋文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.12.0"></script></div><div><script src="/js/utils.js?v=4.12.0"></script><script src="/js/main.js?v=4.12.0"></script><script src="/js/tw_cn.js?v=4.12.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.32/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar@0.1.16/dist/snackbar.min.js"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-fluttering-ribbon.min.js"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-nest.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.js"></script><script src="https://npm.elemecdn.com/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+
+  // removeEventListener
+  btf.removeGlobalFnEvent('pjax')
+  btf.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+
+  typeof disqusjs === 'object' && disqusjs.destroy()
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜尋</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  資料庫載入中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜尋文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.12.0"></script></div></div><!-- hexo injector body_end start --><script data-pjax>
+  function butterfly_footer_beautify_injector_config(){
+    var parent_div_git = document.getElementById('footer-wrap');
+    var item_html = '<div id="workboard"></div><p id="ghbdages"><a class="github-badge" target="_blank" href="https://hexo.io/" style="margin-inline:5px" data-title="博客框架为Hexo_v6.2.0" title=""><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&amp;logo=hexo" alt=""/></a><a class="github-badge" target="_blank" href="https://butterfly.js.org/" style="margin-inline:5px" data-title="主题版本Butterfly_v4.3.1" title=""><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&amp;logo=bitdefender" alt=""/></a><a class="github-badge" target="_blank" href="https://github.com/" style="margin-inline:5px" data-title="本站项目由Github托管" title=""><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&amp;logo=GitHub" alt=""/></a><a class="github-badge" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" style="margin-inline:5px" data-title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可" title=""><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&amp;logo=Claris" alt=""/></a></p>';
+    console.log('已挂载butterfly_footer_beautify')
+    parent_div_git.insertAdjacentHTML("beforeend",item_html)
+    }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_footer_beautify_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_footer_beautify_injector_config();
+  }
+  </script><script async src="https://www.fomal.cc/static/js/runtime.js"></script><!-- hexo injector body_end end --></body></html>
