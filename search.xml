@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>TDengine 集群部署配置</title>
+      <link href="/2024/04/15/TDengine%20%E9%83%A8%E7%BD%B2%20%E9%85%8D%E7%BD%AE/"/>
+      <url>/2024/04/15/TDengine%20%E9%83%A8%E7%BD%B2%20%E9%85%8D%E7%BD%AE/</url>
+      
+        <content type="html"><![CDATA[<h3 id="配置4台服务器的hosts"><a href="#配置4台服务器的hosts" class="headerlink" title="配置4台服务器的hosts"></a>配置4台服务器的hosts</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/hosts</span><br><span class="line"></span><br><span class="line">10.16.4.59 cluster-master</span><br><span class="line">10.16.4.60 cluster-slave1</span><br><span class="line">10.16.4.61 cluster-slave2</span><br><span class="line">10.16.4.62 cluster-slave3</span><br></pre></td></tr></table></figure><h3 id="配置服务器间免密登录"><a href="#配置服务器间免密登录" class="headerlink" title="配置服务器间免密登录"></a>配置服务器间免密登录</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa</span><br><span class="line"></span><br><span class="line">ssh-copy-id  -f -i ~/.ssh/id_rsa.pub master</span><br><span class="line">ssh-copy-id  -f -i ~/.ssh/id_rsa.pub cluster-slave1</span><br><span class="line">ssh-copy-id  -f -i ~/.ssh/id_rsa.pub cluster-slave2</span><br><span class="line">ssh-copy-id  -f -i ~/.ssh/id_rsa.pub cluster-slave3</span><br><span class="line"></span><br><span class="line">Pzszh@</span><br></pre></td></tr></table></figure><h3 id="主节点安装Tdengine"><a href="#主节点安装Tdengine" class="headerlink" title="主节点安装Tdengine"></a>主节点安装Tdengine</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -ivh TDengine-server-2.4.0.20-linux-x64.rpm</span><br></pre></td></tr></table></figure><h3 id="从节点安装Tdengine"><a href="#从节点安装Tdengine" class="headerlink" title="从节点安装Tdengine"></a>从节点安装Tdengine</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rpm -ivh TDengine-server-2.4.0.20-linux-x64.rpm</span><br><span class="line">cluster-master:6030</span><br></pre></td></tr></table></figure><h3 id="所有节点启动Tdengine"><a href="#所有节点启动Tdengine" class="headerlink" title="所有节点启动Tdengine"></a>所有节点启动Tdengine</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">systemctl start taosd</span><br><span class="line">systemctl status taosd</span><br><span class="line">systemctl enable taosd</span><br><span class="line">systemctl stop taosd</span><br></pre></td></tr></table></figure><h3 id="主节点进入tdengine-shell，集群中添加节点"><a href="#主节点进入tdengine-shell，集群中添加节点" class="headerlink" title="主节点进入tdengine shell，集群中添加节点"></a>主节点进入tdengine shell，集群中添加节点</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">taos</span><br><span class="line">show dnodes;</span><br><span class="line">Create Dnode &quot;cluster-slave1:6030&quot;;   添加TDengine各节点</span><br><span class="line">Create Dnode &quot;cluster-slave2:6030&quot; </span><br><span class="line">Create Dnode &quot;cluster-slave3:6030&quot; </span><br></pre></td></tr></table></figure><h3 id="各节点修改Tdengine配置参数，重启子节点再重启管理节点"><a href="#各节点修改Tdengine配置参数，重启子节点再重启管理节点" class="headerlink" title="各节点修改Tdengine配置参数，重启子节点再重启管理节点"></a>各节点修改Tdengine配置参数，重启子节点再重启管理节点</h3><p>配置负载均衡、2样本、数据保存5年</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">vi /usr/local/taos/cfg/taos.cfg</span><br><span class="line"></span><br><span class="line">numOfMnodes    2</span><br><span class="line">balance        1</span><br><span class="line">keep           1825</span><br><span class="line">replica        2</span><br><span class="line">maxSQLLength   1048576</span><br><span class="line"></span><br></pre></td></tr></table></figure><h3 id="Tdengine-卸载"><a href="#Tdengine-卸载" class="headerlink" title="Tdengine 卸载"></a>Tdengine 卸载</h3><ol><li><code>rpm -e tdengine</code></li><li><code>TDEngine is removed successfully!</code></li><li>rm -rf &#x2F;var&#x2F;lib&#x2F;taos</li></ol>]]></content>
+      
+      
+      <categories>
+          
+          <category> linux </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> bigdata </tag>
+            
+            <tag> linux </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>VS Code Remote 在服务器上开发程序</title>
       <link href="/2024/03/02/VS%20Code%20Remote%EF%BC%8C%E5%9C%A8%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%BC%80%E5%8F%91%E7%A8%8B%E5%BA%8F/"/>
       <url>/2024/03/02/VS%20Code%20Remote%EF%BC%8C%E5%9C%A8%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%BC%80%E5%8F%91%E7%A8%8B%E5%BA%8F/</url>
